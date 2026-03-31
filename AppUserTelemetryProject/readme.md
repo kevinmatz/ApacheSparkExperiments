@@ -17,6 +17,17 @@
     * python .\test_spark.py
   * Reminder: "deactivate" to exit the venv in the shell
 
+* Spark seems to fail in various ways (e.g., DataFrame.show() not working and various spurious error messages) if the following lines are not included:
+
+```
+import os
+import sys
+
+os.environ["PYSPARK_PYTHON"] = sys.executable
+os.environ["PYSPARK_DRIVER_PYTHON"] = sys.executable
+```
+
+
 
 ## Notes on previous attempt to install bypassing "pip install pyspark" (as per online advice)
 
