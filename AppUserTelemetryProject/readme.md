@@ -1,4 +1,47 @@
-# Installing Apache Spark and setting up an appropriate venv on Windows 11
+# App User Telemetry Project: A PySpark feature pipeline for user behavior analysis
+
+app_user_telemetry_spark_pipeline.py is a small feature-engineering pipeline using Apache Spark and PySpark. It transforms raw app event data (currently just reading from a .csv file) from a fictional e-commerce site into a user-level feature table that can be used for training a downstream machine learning model to predict user behavior (e.g., likelihood of purchase).
+
+The generate_events.py file can be used to generate a sample events.csv file with fake data for testing this pipeline:
+
+event_id,user_id,event_type,product_id,timestamp,price,device_type,country
+59768816-7296-45c4-b78d-92a1156c9810,user_655,view,product_95,2026-03-12T06:47:21.780186,,mobile,US
+06b26f36-7f3d-4257-97e6-9145e2937867,user_143,click,product_87,2026-03-24T14:04:21.780186,,mobile,UK
+
+Note: Warnings on Windows about "winutils.exe", HADOOP_HOME, and hadoop.home.dir can be ignored.
+
+Kevin Matz, 2026-03-31
+
+
+## How to run
+
+On Windows:
+
+* .\start_venv.bat
+* python generate_events.py
+  * This generates an events.csv file
+* .\run.ps1
+  * Consumes the events.csv file and outputs feature tables in CSV and Parquet formats under the output/ directory
+
+
+## What the Spark pipeline does
+
+1. Reads data from the CSV file into a Spark DataFrame
+2. Cleans and standardizes the data (omits duplicate events, drops rows missing critical values, replaces null price values with 0.0, etc.)
+3. Creates four columns in the DataFrame representing binary features indicating what type of event each data row represents
+4. A features DataFrame is created by aggregating, per user_id, values for total number of views, total number of clicks, total number of "add to cart" events, total purchases, total spent, average order value, etc.
+5. Export features table to CSV and Parquet
+
+Further enhancements:
+
+* TODO: Revise pipeline to use a time split for supervised learning: e.g., if the raw data spans 30 days, use days 1-23 for features, and 24-30 for labels for training
+  * Label could be "did the user make a purchase in the next 7 days" (boolean)
+* TODO: Partition the output by country
+* TODO: Export features to pandas a train a logistic regression (binary classification)
+
+
+
+## Installing Apache Spark and setting up an appropriate venv on Windows 11
 
 * After much troubleshooting, it turns out that Spark 4.1.1 does not run at all with Java 25 or Python 3.13.7
 * Install Java 21
@@ -6,6 +49,7 @@
 * Make sure there are no environment variables set for %SPARK_HOME%, %PYTHONPATH%, or %HADOOP_HOME% as these will cause endless problems
 
 * To create an appropriate venv:
+  * cd C:\GitRepos\ApacheSparkExperiments\AppUserTelemetryProject
   * C:\DevTools\Python310\python.exe -m venv venv-py3.10.6
   * .\venv-py3.10.6\Scripts\Activate.ps1
   * python -m pip install --upgrade pip
@@ -27,6 +71,20 @@ os.environ["PYSPARK_PYTHON"] = sys.executable
 os.environ["PYSPARK_DRIVER_PYTHON"] = sys.executable
 ```
 
+
+## Working around failure of Hadoop winutils.exe on Windows
+
+* Download .jar file: https://repo1.maven.org/maven2/com/globalmentor/hadoop-bare-naked-local-fs/0.1.0/hadoop-bare-naked-local-fs-0.1.0.jar
+* Put .jar file in C:\GitRepos\ApacheSparkExperiments\AppUserTelemetryProject\jars\hadoop-bare-naked-local-fs-0.1.0.jar
+* In PowerShell, run command:
+
+$env:PYSPARK_SUBMIT_ARGS='--driver-class-path "C:\GitRepos\ApacheSparkExperiments\AppUserTelemetryProject\jars\hadoop-bare-naked-local-fs-0.1.0.jar" --conf "spark.executor.extraClassPath=C:\GitRepos\ApacheSparkExperiments\AppUserTelemetryProject\jars\hadoop-bare-naked-local-fs-0.1.0.jar" pyspark-shell'
+
+before running
+
+python .\app_user_telemetry_spark_pipeline.py
+
+* The above commands have been consolidated into .\run.ps1
 
 
 ## Notes on previous attempt to install bypassing "pip install pyspark" (as per online advice)
