@@ -104,6 +104,8 @@ ENV/
 env.bak/
 venv.bak/
 venv-py3.10.6/
+venv_3.11.9_WSL/
+venv-py3.10.6_Windows/
 
 # Spyder project settings
 .spyderproject
