@@ -131,3 +131,6 @@ dmypy.json
 *.swp
 *.swo
 *~
+
+# Kafka-related
+checkpoints/
