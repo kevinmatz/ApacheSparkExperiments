@@ -5,9 +5,9 @@ This project is a proof-of-concept of a small feature-engineering pipeline using
 The pipeline consumes events from a Kafka topic, and transforms raw app event data in JSON lines format, representing user activities on a fictional e-commerce app/site, into user-level feature tables that can be used for training a downstream machine learning model to predict user behavior (e.g., likelihood of purchase). 
 
 * **test_data_creation/generate_test_events_json_lines.py** creates a test data file **events.jsonl**
-* Kafka runs in a Docker container running locally using Docker Desktop (see instructions below), with a single topic "app-user-events"
-* **test_data_producer_to_kafka.py** reads the **events.jsonl** test data file and publishes them to a Kafka topic "app-user-events"
-* **clickstream_spark_pipeline_from_kafka.py** is the Spark pipeline that consumes events from the Kafka topic, and cleans and transforms the data into features for machine learning model training; it currently outputs batches in Parquet and CSV formats to the local filesystem
+* Kafka runs in a Docker container running locally using Docker Desktop (see instructions below), with a single topic *app-user-events*
+* **test_data_producer_to_kafka.py** reads the **events.jsonl** test data file and publishes them to the Kafka topic
+* **clickstream_spark_pipeline_from_kafka.py** is the Spark pipeline that consumes events from the Kafka topic, and cleans and transforms the data into features for machine learning model training; it currently saves output batches every 10 seconds in Parquet and CSV formats under the **output/** directory in the local filesystem
 
 Below are instructions on how to set up the environment and run the project.
 
@@ -16,6 +16,7 @@ This version is set up to run under WSL2 in Windows with Java JDK 21, Docker Des
 IMPORTANT: Apache Spark 4.1.1 is NOT compatible with Python 3.13 or with Java 25.
 
 Kevin Matz, 2026-03-31
+
 Acknowledgement: Assistance from OpenAI Codex and ChatGPT
 
 
@@ -70,11 +71,11 @@ In a first WSL Ubuntu window / bash shell:
 * Start the Spark pipeline that consumes events from the Kafka topic:
   * python /test_data_producer_to_kafka.py
 
-In a separate Ubuntu window / bash shell, 
+In a separate Ubuntu window / bash shell:
 
 * cd /mnt/c/GitRepos/ApacheSparkExperiments/AppUserTelemetryProject  (on my system)
 * source ./venv_3.11.9_WSL/bin/activate
 * Start the Spark pipeline (consumer of events from the Kafka topic):
   * python ./clickstream_spark_pipeline_from_kafka.py
 
-* Reminder: "deactivate" to exit the venv in the shell
+Reminder: "deactivate" to exit the venv in the shell
