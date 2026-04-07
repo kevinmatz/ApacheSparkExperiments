@@ -1,5 +1,5 @@
 # Generates synthetic test data: events representing a "clickstream" of
-# app user interactions on an e-commerce site
+# user interactions on an e-commerce site/app
 #
 # Outputs a JSON Lines file "events.jsonl"
 
@@ -9,6 +9,8 @@ from datetime import datetime, timedelta
 import uuid
 
 random.seed(42)
+
+TIMESPAN_IN_DAYS = 60           # Generate 60 days of data with dates up to today's date
 
 EVENT_TYPES = ["view", "click", "add_to_cart", "purchase"]
 DEVICE_TYPES = ["mobile", "desktop", "tablet"]
@@ -26,7 +28,7 @@ def random_event_type():
     return "purchase"
 
 def generate_events(num_users=1000, num_events=100000, output_file="events.jsonl"):
-    start_time = datetime.now() - timedelta(days=30)
+    start_time = datetime.now() - timedelta(days=TIMESPAN_IN_DAYS)
 
     with open(output_file, "w", encoding="utf-8") as f:
         for _ in range(num_events):
@@ -38,7 +40,7 @@ def generate_events(num_users=1000, num_events=100000, output_file="events.jsonl
                 "event_type": event_type,
                 "product_id": random.choice(PRODUCT_IDS),
                 "timestamp": (
-                    start_time + timedelta(minutes=random.randint(0, 30 * 24 * 60))
+                    start_time + timedelta(minutes=random.randint(0, TIMESPAN_IN_DAYS * 24 * 60))
                 ).isoformat(),
                 "price": round(random.uniform(10, 500), 2) if event_type == "purchase" else None,
                 "device_type": random.choice(DEVICE_TYPES),

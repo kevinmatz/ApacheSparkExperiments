@@ -8,12 +8,11 @@ event_id,user_id,event_type,product_id,timestamp,price,device_type,country
 59768816-7296-45c4-b78d-92a1156c9810,user_655,view,product_95,2026-03-12T06:47:21.780186,,mobile,US
 06b26f36-7f3d-4257-97e6-9145e2937867,user_143,click,product_87,2026-03-24T14:04:21.780186,,mobile,UK
 
-Note: Warnings on Windows about "winutils.exe", HADOOP_HOME, and hadoop.home.dir can be ignored.
+Note: This version was set up for running on Windows using PowerShell.
+
+Warnings on Windows about "winutils.exe", HADOOP_HOME, and hadoop.home.dir can be ignored.
 
 Kevin Matz, 2026-03-31
-
-
-## TODO: New JSON version with Kafka
 
 
 ## How to run
@@ -42,51 +41,6 @@ Further enhancements:
 * TODO: Partition the output by country
 * TODO: Export features to pandas a train a logistic regression (binary classification)
 
-
-## Setting up WSL2 on Windows 11, installing correct version of Python, creating project venv, and installing Apache Spark
-
-TODO
-
-In WSL, initial setup:
-
-sudo apt update
-sudo apt install python3.11 python3.11-venv python3.11-dev
-sudo apt install -y build-essential curl git libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev libffi-dev liblzma-dev tk-dev
-curl https://pyenv.run | bash
-nano ~/.bashrc
-
-
-
-source ~/.bashrc
-pyenv install 3.11.9
-pyenv global 3.11.9
-python --version
-
-cd /mnt/c/GitRepos/ApacheSparkExperiments/AppUserTelemetryProject
-python -m venv venv_3.11.9_WSL
-source ./venv_3.11.9_WSL/bin/activate
-python -m pip install --upgrade pip
-python -m pip install pyspark==4.1.1
-pip install confluent-kafka
-pip freeze > requirements.txt
-
-
-Generate test data:
-
-python ./test_data_creation/generate_test_events_json_lines.py
-
-docker run -d --name kafka_container -p 9092:9092 apache/kafka:4.2.0
-
-docker exec -it kafka_container /opt/kafka/bin/kafka-topics.sh \
-  --bootstrap-server localhost:9092 \
-  --create \
-  --topic app-user-events \
-  --partitions 1 \
-  --replication-factor 1
-
-
-
-python ./app_user_telemetry_spark_pipeline_from_kafka.py
 
 ## Installing Apache Spark and setting up an appropriate venv on Windows 11
 
