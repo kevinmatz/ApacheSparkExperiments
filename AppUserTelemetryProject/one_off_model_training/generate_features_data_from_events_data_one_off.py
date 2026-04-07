@@ -351,9 +351,13 @@ print("scikit-learn label shape:", y.shape)
 # --------------------------------------------------
 # 12. Save outputs
 # --------------------------------------------------
+
+# Training dataset suitable for use with pandas and scikit-learn
 training_df.write.mode("overwrite").parquet("output/training_dataset")
 training_df.write.mode("overwrite").option("header", True).csv("output/training_dataset_csv")
 
+# ml_dataset is intended for future use with Spark ML (contains a
+# Spark vector column called "features")
 ml_df.write.mode("overwrite").parquet("output/ml_dataset")
 # ml_df.write.mode("overwrite").csv("output/ml_dataset")  # Not supported -- [UNSUPPORTED_DATA_TYPE_FOR_DATASOURCE] The CSV datasource doesn't support the column `features` of the type UDT("STRUCT<type: TINYINT NOT NULL, size: INT, indices: ARRAY<INT>, values: ARRAY<DOUBLE>>").
 
