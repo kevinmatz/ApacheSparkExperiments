@@ -11,6 +11,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import roc_auc_score, classification_report
+import joblib
 
 df = pd.read_parquet("output/training_dataset", engine="pyarrow")
 
@@ -63,6 +64,9 @@ y_proba = model.predict_proba(X_test)[:, 1]
 
 print("ROC AUC:", roc_auc_score(y_test, y_proba))
 print(classification_report(y_test, y_pred))
+
+# Save the model to a file for later use (inference in production)
+joblib.dump(model, "../purchase_model.joblib")
 
 
 print("\n\nTesting inference with a single feature vector:")

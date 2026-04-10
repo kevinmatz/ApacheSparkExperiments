@@ -50,7 +50,8 @@ Acknowledgement: Assistance from OpenAI Codex and ChatGPT
   * python -m venv venv_3.11.9_WSL
   * source ./venv_3.11.9_WSL/bin/activate
   * python -m pip install --upgrade pip
-  * python -m pip install pyspark==4.1.1
+  * python -m pip install pyspark==4.0.1
+    * UPDATE: Initially I was using pyspark==4.1.1 but ran into known bug SPARK-55271 "NullPointerException in Kafka Micro-Batch Streaming Progress Reporting" with 4.1.1, so need to downgrade to 4.0.1 for now
   * pip install confluent-kafka
   * pip freeze > requirements.txt
 * Ensure Docker Desktop is installed; under Settings, ensure it is configured to work with WSL2 and Ubuntu
@@ -68,14 +69,31 @@ In a first WSL Ubuntu window / bash shell:
 * Start the Kafka Docker container and create a topic "app-user-events":
   * docker run -d --name kafka_container -p 9092:9092 apache/kafka:4.2.0
   * docker exec -it kafka_container /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --topic app-user-events --partitions 1 --replication-factor 1
-* Start the Spark pipeline that consumes events from the Kafka topic:
-  * python /test_data_producer_to_kafka.py
+* Start the tool that produces events that are sent to the Kafka topic:
+  * python ./test_data_producer_to_kafka.py
 
-In a separate Ubuntu window / bash shell:
+To demonstrate consumption of the Kafka events, in a separate Ubuntu window / bash shell:
 
 * cd /mnt/c/GitRepos/ApacheSparkExperiments/AppUserTelemetryProject  (on my system)
 * source ./venv_3.11.9_WSL/bin/activate
 * Start the Spark pipeline (consumer of events from the Kafka topic):
   * python ./clickstream_spark_pipeline_from_kafka.py
+
+To train a logistic regression model (for now, a one-time event -- later iterations of the project will trigger retraining periodically):
+
+* cd one_off_model_training
+* python ./logistic_regression_sklearn_model_one_off.py
+  * NOTE: This has hardcoded date ranges for now
+  * This creates <project_root>/purchase_model.joblib -- a saved copy of the model
+  * Console output shows accuracy with the training/test split data, and shows a demo of inference using a single sample feature vector (output: prediction and probability)
+* cd ..
+  * TODO: Project structure may be revised
+
+To see a demo of live inference scoring from Kafka Stream with Spark Structured Streaming and scikit-learn logistic regression model:
+
+* In one Ubuntu window/shell, start the tool that produces events that are sent to the Kafka topic:
+  * python ./test_data_producer_to_kafka.py
+* In another Ubuntu window/shell:
+  * python ./live_inference_scoring_from_kafka.py
 
 Reminder: "deactivate" to exit the venv in the shell
