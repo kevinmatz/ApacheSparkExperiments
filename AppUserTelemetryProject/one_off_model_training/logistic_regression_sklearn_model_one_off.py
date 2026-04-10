@@ -63,3 +63,50 @@ y_proba = model.predict_proba(X_test)[:, 1]
 
 print("ROC AUC:", roc_auc_score(y_test, y_proba))
 print(classification_report(y_test, y_pred))
+
+
+print("\n\nTesting inference with a single feature vector:")
+
+def predict_user(model, feature_dict):
+    df = pd.DataFrame([feature_dict])
+    pred = model.predict(df)[0]
+    proba = model.predict_proba(df)[0][1]
+    
+    return {
+        "prediction": int(pred),
+        "probability": float(proba)
+    }
+
+# Create a single example (as a dict)
+sample = {
+    "views_7d": 10,
+    "clicks_7d": 4,
+    "carts_7d": 1,
+    "purchases_7d": 0,
+    "spend_7d": 0.0,
+    "avg_order_value_7d": 0.0,
+    "distinct_products_7d": 3,
+    "active_days_7d": 2,
+    "days_since_last_event_7d": 1,
+    "click_to_view_ratio_7d": 0.4,
+    "cart_to_click_ratio_7d": 0.25,
+    "views_30d": 40,
+    "clicks_30d": 15,
+    "carts_30d": 5,
+    "purchases_30d": 1,
+    "spend_30d": 50.0,
+    "avg_order_value_30d": 50.0,
+    "distinct_products_30d": 10,
+    "active_days_30d": 12,
+    "days_since_last_event_30d": 1,
+    "click_to_view_ratio_30d": 0.375,
+    "cart_to_click_ratio_30d": 0.33,
+}
+
+sample_result = predict_user(model, sample)
+pred = sample_result["prediction"]
+proba = sample_result["probability"]
+
+print("Sample feature vector:", sample)
+print("Prediction (0=no, 1=yes):", pred)
+print("Probability of purchase:", proba)
